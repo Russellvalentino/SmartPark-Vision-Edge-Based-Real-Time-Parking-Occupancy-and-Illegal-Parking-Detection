@@ -1,0 +1,2 @@
+# SmartPark-Vision-Edge-Based-Real-Time-Parking-Occupancy-and-Illegal-Parking-Detection
+SmartPark Vision is an edge-based AI parking system that uses computer vision to monitor parking spaces in real time. It detects occupied and available spaces, identifies illegally parked vehicles, and generates alerts. By processing data locally, it reduces latency, improves parking efficiency, enhances safety, and minimizes cloud dependency.
