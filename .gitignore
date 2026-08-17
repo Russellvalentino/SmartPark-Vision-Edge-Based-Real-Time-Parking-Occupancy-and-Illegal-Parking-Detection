@@ -1,0 +1,38 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Data & media (heavy, gitignored)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.mp4
+*.avi
+*.mov
+
+# Model weights (track selectively if needed)
+models/weights/*.onnx
+models/weights/*.pt
+models/weights/*.engine
+
+# Node / frontend
+web_dashboard/node_modules/
+web_dashboard/dist/
+web_dashboard/build/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Env files
+.env

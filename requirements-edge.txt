@@ -1,0 +1,6 @@
+# Edge-specific accelerators — install in addition to requirements.txt
+# on devices with a compatible GPU (e.g. Jetson, x86 with CUDA).
+
+onnxruntime-gpu>=1.17.0
+# For NVIDIA Jetson devices, prefer the Jetson-specific onnxruntime wheel
+# from NVIDIA's index instead of the PyPI onnxruntime-gpu package.
