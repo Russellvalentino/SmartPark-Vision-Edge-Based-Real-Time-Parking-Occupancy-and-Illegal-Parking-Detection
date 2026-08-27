@@ -1,38 +1,25 @@
-# Byte-compiled / cache
-__pycache__/
-*.py[cod]
-*.pyo
-*.egg-info/
-.pytest_cache/
-
-# Virtual environments
-venv/
+# Python Virtual Environment
 .venv/
 env/
+venv/
 
-# Data & media (heavy, gitignored)
-data/raw/*
-data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch / YOLO Weights
+*.pt
+*.onnx
+*.engine
+
+# Heavy Video Outputs & Local DBs
 *.mp4
 *.avi
-*.mov
+data/events.db
+data/annotated_output.mp4
+data/datasets/*.mp4
 
-# Model weights (track selectively if needed)
-models/weights/*.onnx
-models/weights/*.pt
-models/weights/*.engine
-
-# Node / frontend
-web_dashboard/node_modules/
-web_dashboard/dist/
-web_dashboard/build/
-
-# OS / IDE
+# IDE & OS
 .DS_Store
-.vscode/
-.idea/
-
-# Env files
-.env
+Thumbs.db

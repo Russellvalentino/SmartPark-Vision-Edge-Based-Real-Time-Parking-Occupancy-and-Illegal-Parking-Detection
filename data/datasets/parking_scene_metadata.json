@@ -1,0 +1,35 @@
+{
+  "dataset_name": "SmartPark_Synthetic_Benchmark_v1",
+  "description": "Ground truth parking lot CCTV dataset with vehicle movement, bay occupancy transitions, and fire lane dwell violation.",
+  "video_file": "data/datasets/sample_parking_feed.mp4",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "fps": 30,
+  "total_frames": 360,
+  "ground_truth_events": [
+    {
+      "frame": 0,
+      "event": "initial_state",
+      "occupied_spots": [
+        "A1",
+        "A3"
+      ],
+      "vacant_spots": [
+        "A2",
+        "A4"
+      ]
+    },
+    {
+      "frame": 60,
+      "event": "vehicle_entry_bay_A2",
+      "description": "Car 102 parks in Bay A2"
+    },
+    {
+      "frame": 120,
+      "event": "fire_lane_unauthorized_stop",
+      "description": "Vehicle 87 enters Fire Lane and begins continuous dwell"
+    }
+  ]
+}

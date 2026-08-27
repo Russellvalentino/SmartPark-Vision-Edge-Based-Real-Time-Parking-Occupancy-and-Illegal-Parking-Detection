@@ -1,0 +1,34 @@
+{
+  "system": {
+    "device_id": "edge_node_north_garage_01",
+    "camera_id": "cam_zone_A",
+    "target_fps": 30,
+    "input_resolution": [1920, 1080],
+    "log_level": "INFO"
+  },
+  "ai_pipeline": {
+    "model_name": "yolo11n.pt",
+    "confidence_threshold": 0.35,
+    "iou_threshold": 0.45,
+    "tracker_type": "bytetrack",
+    "track_classes": [2, 3, 5, 7]
+  },
+  "spatial_logic": {
+    "debounce_frames": 5,
+    "occupancy_iou_threshold": 0.25,
+    "dwell_time_threshold_seconds": 60,
+    "restricted_zones_config": "config/zones_and_slots.json"
+  },
+  "telemetry": {
+    "mqtt_broker": "localhost",
+    "mqtt_port": 1883,
+    "mqtt_enabled": false,
+    "occupancy_topic": "smartpark/edge/{device_id}/occupancy",
+    "alerts_topic": "smartpark/edge/{device_id}/alerts",
+    "sqlite_db_path": "data/events.db"
+  },
+  "storage": {
+    "snapshots_dir": "data/snapshots",
+    "max_snapshot_retention_days": 7
+  }
+}

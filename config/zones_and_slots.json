@@ -1,0 +1,60 @@
+{
+  "camera_id": "cam_zone_A",
+  "resolution": [1920, 1080],
+  "parking_slots": [
+    {
+      "spot_id": "A1",
+      "name": "Bay A1",
+      "polygon": [
+        [150, 600],
+        [450, 600],
+        [400, 950],
+        [80, 950]
+      ]
+    },
+    {
+      "spot_id": "A2",
+      "name": "Bay A2",
+      "polygon": [
+        [480, 600],
+        [780, 600],
+        [740, 950],
+        [420, 950]
+      ]
+    },
+    {
+      "spot_id": "A3",
+      "name": "Bay A3",
+      "polygon": [
+        [810, 600],
+        [1110, 600],
+        [1080, 950],
+        [760, 950]
+      ]
+    },
+    {
+      "spot_id": "A4",
+      "name": "Bay A4",
+      "polygon": [
+        [1140, 600],
+        [1440, 600],
+        [1420, 950],
+        [1100, 950]
+      ]
+    }
+  ],
+  "restricted_zones": [
+    {
+      "zone_id": "fire_lane_01",
+      "name": "Emergency Fire Lane Zone",
+      "type": "fire_lane",
+      "dwell_time_threshold_seconds": 5,
+      "polygon": [
+        [1480, 450],
+        [1850, 450],
+        [1850, 950],
+        [1480, 950]
+      ]
+    }
+  ]
+}

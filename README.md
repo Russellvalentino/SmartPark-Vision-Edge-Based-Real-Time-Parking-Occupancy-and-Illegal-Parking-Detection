@@ -1,68 +1,100 @@
-# SmartPark-Vision
+# SmartPark Vision (Edge-Native AI Pipeline)
 
-Edge-deployed computer vision system for real-time parking occupancy detection
-and illegal-parking violation alerts, with a live web dashboard.
+Edge-Based Real-Time Parking Occupancy & Violation Detection using **YOLOv11**, **ByteTrack**, and **Spatial Polygon Analytics**.
 
-## Features
+---
 
-- YOLOv8/ONNX-based vehicle detection optimized for edge devices
-- Stationary-vehicle tracking (ByteTrack/SORT) for dwell-time analysis
-- Polygon-based occupancy analysis for legal parking bays and no-parking zones
-- Timer-based illegal parking violation detection with snapshot capture
-- FastAPI backend with WebSocket telemetry streaming
-- React + Tailwind live dashboard (occupancy grid, violation alerts, stats)
+## 📁 Project Structure (Strictly JSON & SQLite - No CSV)
 
-## Project Structure
-
-See the repository tree for a full breakdown of `src/edge_vision`,
-`src/backend`, `src/utils`, `tools/`, and `web_dashboard/`.
-
-## Quickstart
-
-```bash
-# 1. Clone
-git clone https://github.com/<your-org>/SmartPark-Vision.git
-cd SmartPark-Vision
-
-# 2. Python environment
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-# On edge hardware with GPU acceleration:
-pip install -r requirements-edge.txt
-
-# 3. Mark parking zones (one-time setup per camera)
-python tools/mark_roi.py --video data/sample_demo.mp4 --output config/parking_slots.json
-
-# 4. Run the edge vision pipeline
-python -m src.edge_vision.detector --config config/config.yaml
-
-# 5. Run the backend API + WebSocket server
-uvicorn src.backend.main:app --reload --port 8000
-
-# 6. Run the dashboard
-cd web_dashboard
-npm install
-npm run dev
+```
+ML/
+├── config/
+│   ├── settings.json              # Edge node & AI thresholds configuration
+│   └── zones_and_slots.json       # N-sided polygon calibrations (P1..Pn, Z1..Zm)
+├── data/
+│   ├── datasets/                  # Video datasets and JSON benchmark metadata
+│   │   ├── parking_scene_metadata.json
+│   │   └── sample_parking_feed.mp4
+│   ├── snapshots/                 # Low-res cropped evidence snapshots on violation
+│   ├── annotated_output.mp4       # Rendered video stream with live HUD overlay
+│   └── events.db                  # Local SQLite offline buffer & event log
+├── src/
+│   ├── detector.py                # YOLOv11 vehicle object detector
+│   ├── tracker.py                 # ByteTrack Kalman filter tracker & track ID state machine
+│   ├── spatial_engine.py          # Polygon IoU & N-frame debounce state machine
+│   ├── violation_engine.py        # Restricted zone dwell-time counter & alert engine
+│   ├── telemetry.py               # MQTT telemetry dispatcher & SQLite buffer
+│   ├── health_monitor.py          # FPS, system health & camera obstruction detection
+│   ├── dataset_generator.py       # Parking benchmark generator (JSON + MP4)
+│   └── pipeline.py                # Main edge processing pipeline
+├── calibration_tool.py            # Interactive visual polygon calibration UI
+├── run_smartpark.py               # CLI entry point
+└── requirements.txt               # Dependencies
 ```
 
-## Configuration
+---
 
-- `config/config.yaml` — detection thresholds, inference interval, video source(s)
-- `config/parking_slots.json` — polygon coordinates for legal parking bays
-- `config/no_parking_zones.json` — polygon coordinates for restricted zones
+## 🚀 Quickstart & Commands
 
-## Testing & CI
-
-GitHub Actions (`.github/workflows/python-lint-test.yml`) runs Flake8 and
-Pytest on every push/PR.
-
+### 1. Run the Pipeline on Benchmark Dataset
 ```bash
-pip install flake8 pytest
-flake8 src/
-pytest tests/
+.venv\Scripts\python.exe run_smartpark.py --source data/datasets/sample_parking_feed.mp4 --record
 ```
 
-## License
+### 2. Generate a New Benchmark Dataset
+```bash
+.venv\Scripts\python.exe run_smartpark.py --generate-dataset
+```
 
-MIT — see [LICENSE](LICENSE).
+### 3. Launch Interactive Polygon Calibration Tool
+```bash
+.venv\Scripts\python.exe calibration_tool.py data/datasets/sample_parking_feed.mp4
+```
+* **Left Click**: Add polygon vertex
+* **Space / Enter**: Save polygon bay / zone
+* **`z`**: Toggle between **Parking Slot** mode and **Restricted Zone** mode
+* **`s`**: Save calibration to `config/zones_and_slots.json`
+
+### 4. Connect to a Live RTSP Camera Feed
+```bash
+.venv\Scripts\python.exe run_smartpark.py --source "rtsp://username:password@camera_ip:554/live" --display
+```
+
+---
+
+## 📡 Telemetry Payloads (PRD Section 6)
+
+### Occupancy Telemetry (`smartpark/edge/{device_id}/occupancy`)
+```json
+{
+  "timestamp": "2026-08-27T18:27:31Z",
+  "device_id": "edge_node_north_garage_01",
+  "camera_id": "cam_zone_A",
+  "total_spots": 4,
+  "occupied_spots": 3,
+  "spots": [
+    { "spot_id": "A1", "status": "occupied", "vehicle_track_id": 2 },
+    { "spot_id": "A2", "status": "occupied", "vehicle_track_id": 3 },
+    { "spot_id": "A3", "status": "occupied", "vehicle_track_id": 1 },
+    { "spot_id": "A4", "status": "vacant", "vehicle_track_id": null }
+  ]
+}
+```
+
+### Illegal Parking Alert (`smartpark/edge/{device_id}/alerts`)
+```json
+{
+  "timestamp": "2026-08-27T18:27:07Z",
+  "event_id": "evt_viol_64153a",
+  "violation_type": "illegal_parking_dwell_exceeded",
+  "zone_id": "fire_lane_01",
+  "vehicle_details": {
+    "track_id": 4,
+    "class": "car",
+    "confidence": 0.94,
+    "dwell_time_seconds": 5,
+    "threshold_seconds": 5
+  },
+  "evidence_snapshot_url": "data/snapshots/20260827_235707_evt_viol_64153a_track_4.jpg"
+}
+```

@@ -1,15 +1,6 @@
-# Core dependencies
-opencv-python>=4.9.0
-numpy>=1.26.0
-onnxruntime>=1.17.0
-fastapi>=0.110.0
-uvicorn[standard]>=0.29.0
-websockets>=12.0
-sqlalchemy>=2.0.0
-pydantic>=2.6.0
-pyyaml>=6.0.1
-shapely>=2.0.3      # polygon IoU / overlap math
-
-# Dev / CI
-flake8>=7.0.0
-pytest>=8.0.0
+numpy>=1.21.0
+opencv-python>=4.8.0
+shapely>=2.0.0
+paho-mqtt>=1.6.1
+psutil>=5.9.0
+ultralytics>=8.3.0
