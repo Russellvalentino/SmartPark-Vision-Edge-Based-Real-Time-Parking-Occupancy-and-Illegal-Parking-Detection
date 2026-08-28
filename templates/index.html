@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPark Vision — Edge AI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0B0E14;
+            --bg-card: rgba(22, 27, 34, 0.85);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-cyan: #00F2FE;
+            --accent-green: #10B981;
+            --accent-red: #EF4444;
+            --accent-amber: #F59E0B;
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.04) 0%, transparent 40%);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-live {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #FFFFFF, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #FFF;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .video-header {
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .video-feed {
+            width: 100%;
+            display: block;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .spot-badge {
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .spot-badge.vacant {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .spot-badge.occupied {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .spot-id {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .spot-status {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .spot-badge.vacant .spot-status { color: var(--accent-green); }
+        .spot-badge.occupied .spot-status { color: var(--accent-red); }
+
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            background: rgba(239, 68, 68, 0.08);
+            border-left: 4px solid var(--accent-red);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .alert-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">
+            <h1>SmartPark Vision</h1>
+            <div class="badge-live">
+                <div class="pulse-dot"></div>
+                Edge Stream Active
+            </div>
+        </div>
+        <div style="font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="sys-clock">
+            --:--:-- UTC
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Occupancy Rate</div>
+            <div class="stat-value" id="stat-occupancy-rate">--%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Available Bays</div>
+            <div class="stat-value" style="color: var(--accent-green);" id="stat-vacant-bays">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Occupied Bays</div>
+            <div class="stat-value" style="color: var(--accent-red);" id="stat-occupied-bays">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Edge Inference FPS</div>
+            <div class="stat-value" style="color: var(--accent-cyan);" id="stat-fps">30.0</div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Live Video View -->
+        <div class="video-container">
+            <div class="video-header">
+                <div>📹 Camera Feed: <span style="color: var(--accent-cyan);">Zone A (1080p @ 30 FPS)</span></div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="stat-health">CPU: --% | RAM: --%</div>
+            </div>
+            <img class="video-feed" src="/video_feed" alt="SmartPark Live Stream">
+        </div>
+
+        <!-- Right Panels -->
+        <div class="sidebar">
+            <!-- Bay Status Grid -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>Parking Bay Status</span>
+                    <span style="color: var(--text-muted); font-size: 12px;" id="total-slots-count">4 Spots</span>
+                </div>
+                <div class="spots-grid" id="spots-container">
+                    <div class="spot-badge vacant">
+                        <div class="spot-id">Bay A1</div>
+                        <div class="spot-status">VACANT</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violation Alerts -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>Active Violation Alerts</span>
+                    <span style="color: var(--accent-red); font-size: 12px;" id="alerts-count">0 Alerts</span>
+                </div>
+                <div class="alerts-list" id="alerts-container">
+                    <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">
+                        No active violations detected
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('sys-clock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch('/api/telemetry');
+                const data = await res.json();
+                
+                // Update stats
+                const total = data.total_spots || 4;
+                const occupied = data.occupied_spots || 0;
+                const vacant = total - occupied;
+                const rate = Math.round((occupied / total) * 100);
+
+                document.getElementById('stat-occupancy-rate').innerText = `${rate}%`;
+                document.getElementById('stat-vacant-bays').innerText = `${vacant} / ${total}`;
+                document.getElementById('stat-occupied-bays').innerText = `${occupied} / ${total}`;
+                document.getElementById('stat-fps').innerText = data.fps || "30.0";
+                document.getElementById('stat-health').innerText = `CPU: ${data.cpu_percent || 0}% | RAM: ${data.memory_percent || 0}%`;
+
+                // Update spots grid
+                const container = document.getElementById('spots-container');
+                if (data.spots && data.spots.length > 0) {
+                    container.innerHTML = data.spots.map(s => `
+                        <div class="spot-badge ${s.status}">
+                            <div class="spot-id">Bay ${s.spot_id}</div>
+                            <div class="spot-status">${s.status.toUpperCase()} ${s.vehicle_track_id ? '#' + s.vehicle_track_id : ''}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // Update alerts
+                const alertsContainer = document.getElementById('alerts-container');
+                if (data.alerts && data.alerts.length > 0) {
+                    document.getElementById('alerts-count').innerText = `${data.alerts.length} Alert(s)`;
+                    alertsContainer.innerHTML = data.alerts.map(a => `
+                        <div class="alert-item">
+                            <strong style="color: var(--accent-red);">🚨 ${a.violation_type.replace(/_/g, ' ').toUpperCase()}</strong>
+                            <div style="margin-top: 4px;">Zone: <b>${a.zone_id}</b> | Vehicle #${a.vehicle_details.track_id} (${a.vehicle_details.class})</div>
+                            <div class="alert-meta">
+                                <span>Dwell: ${a.vehicle_details.dwell_time_seconds}s</span>
+                                <span>${a.timestamp}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Telemetry fetch error:", e);
+            }
+        }
+
+        setInterval(fetchTelemetry, 1000);
+        fetchTelemetry();
+    </script>
+</body>
+</html>
