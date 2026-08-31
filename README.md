@@ -36,9 +36,11 @@ ML/
 
 ## 📊 Datasets
 
-While this repository uses a synthetic sample MP4 for quickstart testing, for robust evaluation we recommend the **PKLot Dataset**:
-- **Link:** [PKLot on Kaggle](https://www.kaggle.com/code/blatalia/pklot/notebook)
-- *Note:* Due to GitHub's strict file size limits, do not upload the raw gigabyte-scale PKLot image sequence to this repository. Use it locally for testing or generating your own MP4 feeds.
+While this repository uses a synthetic sample MP4 for quickstart testing, for robust evaluation we recommend these public datasets:
+- **PKLot Dataset:** [Kaggle Link](https://www.kaggle.com/code/blatalia/pklot/notebook)
+- **CNRPark-EXT Dataset:** [Kaggle Link](https://www.kaggle.com/datasets/ddsshubham/cnrpark-ext)
+
+*Note:* Due to GitHub's strict file size limits, do not upload raw gigabyte-scale image sequences to this repository. Use them locally for testing or generating your own MP4 feeds.
 
 ---
 
