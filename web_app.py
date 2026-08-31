@@ -205,7 +205,7 @@ def api_zones():
 
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print(" 🚀 SMARTPARK VISION WEB DASHBOARD RUNNING")
+    print(" >>> SMARTPARK VISION WEB DASHBOARD RUNNING")
     print(" Open your browser at: http://localhost:5000")
     print("="*60 + "\n")
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
