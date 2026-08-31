@@ -19,6 +19,7 @@ from src.spatial_engine import SpatialEngine
 from src.violation_engine import ViolationEngine
 from src.telemetry import TelemetryManager
 from src.health_monitor import HealthMonitor
+from src.stream_reader import ThreadedVideoStream
 
 class SmartParkPipeline:
     def __init__(self, config_path: str = "config/settings.json", zones_path: str = "config/zones_and_slots.json"):
@@ -52,16 +53,17 @@ class SmartParkPipeline:
 
     def run(self, source_path_or_rtsp: str, output_display: bool = False, output_video_path: Optional[str] = None):
         """
-        Runs pipeline on video feed or RTSP stream.
+        Runs pipeline on video feed or RTSP stream with threaded asynchronous frame ingestion.
         """
-        cap = cv2.VideoCapture(source_path_or_rtsp)
-        if not cap.isOpened():
-            print(f"[Pipeline] Error opening video stream from: {source_path_or_rtsp}")
+        try:
+            stream = ThreadedVideoStream(source_path_or_rtsp)
+        except Exception as e:
+            print(f"[Pipeline] Error initializing video stream from {source_path_or_rtsp}: {e}")
             return
 
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 1920
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 1080
-        fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+        width = stream.width
+        height = stream.height
+        fps = stream.fps
 
         writer = None
         if output_video_path:
@@ -69,15 +71,16 @@ class SmartParkPipeline:
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
-        print(f"[Pipeline] Processing stream: {width}x{height} @ {fps:.1f} FPS...")
+        print(f"[Pipeline] Processing threaded stream: {width}x{height} @ {fps:.1f} FPS...")
         frame_idx = 0
         start_wall_time = time.time()
 
         try:
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret:
+            while stream.is_running():
+                ret, frame = stream.read(timeout=1.0)
+                if not ret or frame is None:
                     break
+
 
                 frame_idx += 1
                 current_time = time.time()
@@ -126,7 +129,7 @@ class SmartParkPipeline:
                         break
 
         finally:
-            cap.release()
+            stream.stop()
             if writer:
                 writer.release()
             if output_display:
