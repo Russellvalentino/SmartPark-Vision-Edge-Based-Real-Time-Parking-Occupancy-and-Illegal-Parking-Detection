@@ -27,8 +27,15 @@
     "alerts_topic": "smartpark/edge/{device_id}/alerts",
     "sqlite_db_path": "data/events.db"
   },
+  "notifications": {
+    "webhook_enabled": false,
+    "webhook_url": "",
+    "webhook_type": "discord",
+    "enable_audio_alerts": true
+  },
   "storage": {
     "snapshots_dir": "data/snapshots",
     "max_snapshot_retention_days": 7
   }
 }
+

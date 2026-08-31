@@ -20,6 +20,7 @@ from src.violation_engine import ViolationEngine
 from src.telemetry import TelemetryManager
 from src.health_monitor import HealthMonitor
 from src.stream_reader import ThreadedVideoStream
+from src.notifier import AlertNotifier
 
 class SmartParkPipeline:
     def __init__(self, config_path: str = "config/settings.json", zones_path: str = "config/zones_and_slots.json"):
@@ -47,9 +48,11 @@ class SmartParkPipeline:
         self.violation_engine.load_zones(self.zones_data)
         
         self.telemetry = TelemetryManager(self.config)
+        self.notifier = AlertNotifier(self.config)
         
         self.last_occupancy_emit = 0.0
         self.occupancy_emit_interval = 1.0 # Emit telemetry every 1 second
+
 
     def run(self, source_path_or_rtsp: str, output_display: bool = False, output_video_path: Optional[str] = None):
         """
@@ -116,6 +119,7 @@ class SmartParkPipeline:
                 for viol in violations:
                     print(f"[VIOLATION ALERT] Zone: {viol['zone_id']} | Track ID: {viol['vehicle_details']['track_id']} | Dwell: {viol['vehicle_details']['dwell_time_seconds']}s")
                     self.telemetry.emit_violation(viol)
+                    self.notifier.notify(viol)
 
                 # 7. Render Edge Visual HUD Overlay
                 annotated_frame = self._render_hud(frame, spot_statuses, active_tracks, violations, health_stats)

@@ -173,6 +173,10 @@ def api_config():
                 pipeline_instance.spatial_engine.debounce_n = new_config.get("spatial_logic", {}).get("debounce_frames", 5)
                 pipeline_instance.spatial_engine.iou_threshold = new_config.get("spatial_logic", {}).get("occupancy_iou_threshold", 0.25)
                 pipeline_instance.violation_engine.default_dwell_threshold = new_config.get("spatial_logic", {}).get("dwell_time_threshold_seconds", 60.0)
+                pipeline_instance.notifier.enabled = new_config.get("notifications", {}).get("webhook_enabled", False)
+                pipeline_instance.notifier.webhook_url = new_config.get("notifications", {}).get("webhook_url", "")
+                pipeline_instance.notifier.webhook_type = new_config.get("notifications", {}).get("webhook_type", "discord").lower()
+
 
         return jsonify({"status": "success", "message": "Configuration updated and applied to pipeline."})
     except Exception as e:

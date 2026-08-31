@@ -531,7 +531,28 @@
                     <label class="form-label">Default Dwell Violation (Sec)</label>
                     <input class="form-input" id="cfg-dwell-sec" type="number">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Webhook Type</label>
+                    <select class="form-input" id="cfg-webhook-type">
+                        <option value="discord">Discord Webhook (Rich Embed)</option>
+                        <option value="slack">Slack Webhook (Blocks)</option>
+                        <option value="generic">Generic JSON Webhook</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label">Alert Webhook URL (Discord/Slack/Telegram)</label>
+                    <input class="form-input" id="cfg-webhook-url" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="cfg-webhook-enabled" style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="cfg-webhook-enabled" class="form-label" style="margin: 0; cursor: pointer;">Enable External Webhook Alerts</label>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="cfg-audio-enabled" checked style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="cfg-audio-enabled" class="form-label" style="margin: 0; cursor: pointer;">Enable Browser Audio Alarm (Security Siren)</label>
+                </div>
             </div>
+
 
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
                 <button class="btn btn-secondary" onclick="loadSettings()">Reset</button>
@@ -601,6 +622,13 @@
                 const alertsContainer = document.getElementById('alerts-container');
                 if (data.alerts && data.alerts.length > 0) {
                     document.getElementById('alerts-count').innerText = `${data.alerts.length} Alert(s)`;
+                    
+                    const newestEvent = data.alerts[0];
+                    if (newestEvent && newestEvent.event_id !== lastAlertEventId) {
+                        lastAlertEventId = newestEvent.event_id;
+                        playSecurityAlertBeep();
+                    }
+
                     alertsContainer.innerHTML = data.alerts.map(a => `
                         <div class="alert-item">
                             <strong style="color: var(--accent-red);">🚨 ${a.violation_type.replace(/_/g, ' ').toUpperCase()}</strong>
@@ -612,6 +640,7 @@
                         </div>
                     `).join('');
                 }
+
             } catch (e) {}
         }
         setInterval(fetchTelemetry, 1000);
@@ -793,6 +822,11 @@
             document.getElementById('cfg-debounce').value = fullConfig.spatial_logic?.debounce_frames || 5;
             document.getElementById('cfg-iou-thresh').value = fullConfig.spatial_logic?.occupancy_iou_threshold || 0.25;
             document.getElementById('cfg-dwell-sec').value = fullConfig.spatial_logic?.dwell_time_threshold_seconds || 60;
+            
+            document.getElementById('cfg-webhook-enabled').checked = fullConfig.notifications?.webhook_enabled || false;
+            document.getElementById('cfg-webhook-url').value = fullConfig.notifications?.webhook_url || '';
+            document.getElementById('cfg-webhook-type').value = fullConfig.notifications?.webhook_type || 'discord';
+            document.getElementById('cfg-audio-enabled').checked = fullConfig.notifications?.enable_audio_alerts !== false;
         }
 
         async function saveSettings() {
@@ -803,13 +837,40 @@
             fullConfig.spatial_logic.occupancy_iou_threshold = parseFloat(document.getElementById('cfg-iou-thresh').value);
             fullConfig.spatial_logic.dwell_time_threshold_seconds = parseFloat(document.getElementById('cfg-dwell-sec').value);
 
+            if (!fullConfig.notifications) fullConfig.notifications = {};
+            fullConfig.notifications.webhook_enabled = document.getElementById('cfg-webhook-enabled').checked;
+            fullConfig.notifications.webhook_url = document.getElementById('cfg-webhook-url').value.trim();
+            fullConfig.notifications.webhook_type = document.getElementById('cfg-webhook-type').value;
+            fullConfig.notifications.enable_audio_alerts = document.getElementById('cfg-audio-enabled').checked;
+
             const res = await fetch('/api/config', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullConfig)
             });
-            if (res.ok) showToast("Settings saved & hot-reloaded successfully!");
+            if (res.ok) showToast("Settings & Webhook rules saved & hot-reloaded successfully!");
         }
+
+        // Web Audio API security alert chime
+        let lastAlertEventId = null;
+        function playSecurityAlertBeep() {
+            if (!document.getElementById('cfg-audio-enabled')?.checked) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
     </script>
 </body>
 </html>
