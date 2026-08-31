@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPark Vision — Edge AI Dashboard</title>
+    <title>SmartPark Vision — Edge AI Dashboard & Calibrator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -40,13 +40,48 @@
             align-items: center;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .header-title {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .badge-live {
@@ -61,7 +96,6 @@
             align-items: center;
             gap: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .pulse-dot {
@@ -79,9 +113,8 @@
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            letter-spacing: -0.5px;
             background: linear-gradient(90deg, #FFFFFF, var(--accent-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -107,7 +140,6 @@
             color: var(--text-muted);
             text-transform: uppercase;
             font-weight: 600;
-            letter-spacing: 0.5px;
             margin-bottom: 6px;
         }
 
@@ -136,7 +168,6 @@
             backdrop-filter: blur(12px);
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             position: relative;
         }
 
@@ -181,7 +212,6 @@
             justify-content: space-between;
             align-items: center;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .spots-grid {
@@ -197,7 +227,6 @@
             flex-direction: column;
             gap: 4px;
             border: 1px solid transparent;
-            transition: all 0.2s ease;
         }
 
         .spot-badge.vacant {
@@ -210,17 +239,8 @@
             border-color: rgba(239, 68, 68, 0.3);
         }
 
-        .spot-id {
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .spot-status {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
+        .spot-id { font-weight: 700; font-size: 15px; }
+        .spot-status { font-size: 12px; font-weight: 600; text-transform: uppercase; }
         .spot-badge.vacant .spot-status { color: var(--accent-green); }
         .spot-badge.occupied .spot-status { color: var(--accent-red); }
 
@@ -228,16 +248,16 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
         .alert-item {
             background: rgba(239, 68, 68, 0.08);
             border-left: 4px solid var(--accent-red);
-            border-top: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+            border-left-color: var(--accent-red);
             padding: 12px;
             border-radius: 8px;
             font-size: 13px;
@@ -250,6 +270,105 @@
             font-size: 11px;
             margin-top: 4px;
         }
+
+        /* Calibration & Settings Styles */
+        .canvas-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            cursor: crosshair;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #FFF;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #00A6FF);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFF;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .zone-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-cyan);
+            color: #FFF;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -259,75 +378,192 @@
             <h1>SmartPark Vision</h1>
             <div class="badge-live">
                 <div class="pulse-dot"></div>
-                Edge Stream Active
+                Live Node
             </div>
         </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('monitor')">📹 Live Monitor</button>
+            <button class="nav-tab" onclick="switchTab('calibration')">📐 In-Browser Calibrator</button>
+            <button class="nav-tab" onclick="switchTab('settings')">⚙️ System Settings</button>
+        </div>
+
         <div style="font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="sys-clock">
             --:--:-- UTC
         </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-label">Occupancy Rate</div>
-            <div class="stat-value" id="stat-occupancy-rate">--%</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Available Bays</div>
-            <div class="stat-value" style="color: var(--accent-green);" id="stat-vacant-bays">--</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Occupied Bays</div>
-            <div class="stat-value" style="color: var(--accent-red);" id="stat-occupied-bays">--</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Edge Inference FPS</div>
-            <div class="stat-value" style="color: var(--accent-cyan);" id="stat-fps">30.0</div>
-        </div>
-    </div>
-
-    <div class="main-layout">
-        <!-- Live Video View -->
-        <div class="video-container">
-            <div class="video-header">
-                <div>📹 Camera Feed: <span style="color: var(--accent-cyan);">Zone A (1080p @ 30 FPS)</span></div>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="stat-health">CPU: --% | RAM: --%</div>
+    <!-- TAB 1: LIVE MONITOR -->
+    <div id="tab-monitor" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Occupancy Rate</div>
+                <div class="stat-value" id="stat-occupancy-rate">--%</div>
             </div>
-            <img class="video-feed" src="/video_feed" alt="SmartPark Live Stream">
+            <div class="stat-card">
+                <div class="stat-label">Available Bays</div>
+                <div class="stat-value" style="color: var(--accent-green);" id="stat-vacant-bays">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Occupied Bays</div>
+                <div class="stat-value" style="color: var(--accent-red);" id="stat-occupied-bays">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Edge Inference FPS</div>
+                <div class="stat-value" style="color: var(--accent-cyan);" id="stat-fps">30.0</div>
+            </div>
         </div>
 
-        <!-- Right Panels -->
-        <div class="sidebar">
-            <!-- Bay Status Grid -->
-            <div class="panel-card">
-                <div class="panel-title">
-                    <span>Parking Bay Status</span>
-                    <span style="color: var(--text-muted); font-size: 12px;" id="total-slots-count">4 Spots</span>
+        <div class="main-layout">
+            <div class="video-container">
+                <div class="video-header">
+                    <div>📹 Camera Feed: <span style="color: var(--accent-cyan);">Zone A (1080p Stream)</span></div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="stat-health">CPU: --% | RAM: --%</div>
                 </div>
-                <div class="spots-grid" id="spots-container">
-                    <div class="spot-badge vacant">
-                        <div class="spot-id">Bay A1</div>
-                        <div class="spot-status">VACANT</div>
+                <img class="video-feed" src="/video_feed" alt="SmartPark Live Stream">
+            </div>
+
+            <div class="sidebar">
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Parking Bay Status</span>
+                        <span style="color: var(--text-muted); font-size: 12px;" id="total-slots-count">4 Spots</span>
+                    </div>
+                    <div class="spots-grid" id="spots-container">
+                        <div class="spot-badge vacant"><div class="spot-id">Bay A1</div><div class="spot-status">VACANT</div></div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Violation Alerts -->
-            <div class="panel-card">
-                <div class="panel-title">
-                    <span>Active Violation Alerts</span>
-                    <span style="color: var(--accent-red); font-size: 12px;" id="alerts-count">0 Alerts</span>
-                </div>
-                <div class="alerts-list" id="alerts-container">
-                    <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">
-                        No active violations detected
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Active Violation Alerts</span>
+                        <span style="color: var(--accent-red); font-size: 12px;" id="alerts-count">0 Alerts</span>
+                    </div>
+                    <div class="alerts-list" id="alerts-container">
+                        <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">No active violations</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- TAB 2: IN-BROWSER CALIBRATOR -->
+    <div id="tab-calibration" class="tab-content">
+        <div class="main-layout">
+            <div class="video-container" style="padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div>
+                        <strong style="color: var(--accent-cyan);">Interactive Canvas Editor</strong>
+                        <p style="font-size: 12px; color: var(--text-muted);">Click points on the snapshot to define N-sided polygons.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="fetchFrozenFrame()">📸 Refresh Snapshot</button>
+                        <button class="btn btn-secondary" onclick="clearCurrentPoints()">🧹 Clear Points</button>
+                        <button class="btn btn-primary" onclick="finishCurrentPolygon()">💾 Add Polygon</button>
+                    </div>
+                </div>
+
+                <div class="canvas-wrapper">
+                    <canvas id="calib-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="panel-card">
+                    <div class="panel-title"><span>New Polygon Setup</span></div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-input" id="poly-type">
+                            <option value="slot">Parking Slot (Bay)</option>
+                            <option value="zone">Restricted Zone (Fire Lane)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID / Name</label>
+                        <input class="form-input" id="poly-id" placeholder="e.g. A5 or fire_lane_02">
+                    </div>
+                    <div class="form-group" id="dwell-thresh-group" style="display: none;">
+                        <label class="form-label">Dwell Threshold (Seconds)</label>
+                        <input class="form-input" id="poly-dwell" type="number" value="60">
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Configured Zones & Slots</span>
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="saveZonesToServer()">🚀 Save to Edge</button>
+                    </div>
+                    <div id="saved-zones-list" style="max-height: 280px; overflow-y: auto;">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: SYSTEM SETTINGS -->
+    <div id="tab-settings" class="tab-content">
+        <div style="max-width: 800px; margin: 0 auto;" class="panel-card">
+            <div class="panel-title"><span>Edge System Configuration (settings.json)</span></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Device ID</label>
+                    <input class="form-input" id="cfg-device-id">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Camera ID</label>
+                    <input class="form-input" id="cfg-camera-id">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">YOLO Confidence Threshold</label>
+                    <input class="form-input" id="cfg-conf-thresh" type="number" step="0.05">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">N-Frame Debounce Count</label>
+                    <input class="form-input" id="cfg-debounce" type="number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Occupancy IoU Threshold</label>
+                    <input class="form-input" id="cfg-iou-thresh" type="number" step="0.05">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Dwell Violation (Sec)</label>
+                    <input class="form-input" id="cfg-dwell-sec" type="number">
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-secondary" onclick="loadSettings()">Reset</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save & Hot-Reload</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Configuration saved successfully!</div>
 
     <script>
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            if (tabId === 'calibration') {
+                initCalibrator();
+            } else if (tabId === 'settings') {
+                loadSettings();
+            }
+        }
+
         function updateClock() {
             const now = new Date();
             document.getElementById('sys-clock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
@@ -335,12 +571,12 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // TELEMETRY POLLING
         async function fetchTelemetry() {
             try {
                 const res = await fetch('/api/telemetry');
                 const data = await res.json();
                 
-                // Update stats
                 const total = data.total_spots || 4;
                 const occupied = data.occupied_spots || 0;
                 const vacant = total - occupied;
@@ -352,7 +588,6 @@
                 document.getElementById('stat-fps').innerText = data.fps || "30.0";
                 document.getElementById('stat-health').innerText = `CPU: ${data.cpu_percent || 0}% | RAM: ${data.memory_percent || 0}%`;
 
-                // Update spots grid
                 const container = document.getElementById('spots-container');
                 if (data.spots && data.spots.length > 0) {
                     container.innerHTML = data.spots.map(s => `
@@ -363,7 +598,6 @@
                     `).join('');
                 }
 
-                // Update alerts
                 const alertsContainer = document.getElementById('alerts-container');
                 if (data.alerts && data.alerts.length > 0) {
                     document.getElementById('alerts-count').innerText = `${data.alerts.length} Alert(s)`;
@@ -378,13 +612,204 @@
                         </div>
                     `).join('');
                 }
-            } catch (e) {
-                console.error("Telemetry fetch error:", e);
+            } catch (e) {}
+        }
+        setInterval(fetchTelemetry, 1000);
+        fetchTelemetry();
+
+        // IN-BROWSER CALIBRATOR LOGIC
+        let canvas, ctx;
+        let bgImage = new Image();
+        let currentPoints = [];
+        let zonesData = { parking_slots: [], restricted_zones: [] };
+        let imgWidth = 1920, imgHeight = 1080;
+
+        document.getElementById('poly-type').addEventListener('change', (e) => {
+            document.getElementById('dwell-thresh-group').style.display = e.target.value === 'zone' ? 'block' : 'none';
+        });
+
+        async function initCalibrator() {
+            canvas = document.getElementById('calib-canvas');
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('click', handleCanvasClick);
+
+            await fetchFrozenFrame();
+            await loadZones();
+        }
+
+        async function fetchFrozenFrame() {
+            const res = await fetch('/api/raw_frame');
+            const data = await res.json();
+            imgWidth = data.width || 1920;
+            imgHeight = data.height || 1080;
+            bgImage.src = data.image_data;
+            bgImage.onload = () => {
+                canvas.width = imgWidth;
+                canvas.height = imgHeight;
+                drawCanvas();
+            };
+        }
+
+        async function loadZones() {
+            const res = await fetch('/api/zones');
+            zonesData = await res.json();
+            renderZonesList();
+            drawCanvas();
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.round((e.clientX - rect.left) * scaleX);
+            const y = Math.round((e.clientY - rect.top) * scaleY);
+
+            currentPoints.push([x, y]);
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (bgImage.complete) {
+                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+            }
+
+            // Draw existing slots
+            (zonesData.parking_slots || []).forEach(s => {
+                drawPoly(s.polygon, 'rgba(16, 185, 129, 0.3)', '#10B981', s.spot_id);
+            });
+
+            // Draw existing zones
+            (zonesData.restricted_zones || []).forEach(z => {
+                drawPoly(z.polygon, 'rgba(239, 68, 68, 0.3)', '#EF4444', z.zone_id);
+            });
+
+            // Draw in-progress points
+            if (currentPoints.length > 0) {
+                ctx.strokeStyle = '#00F2FE';
+                ctx.fillStyle = '#00F2FE';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(currentPoints[0][0], currentPoints[0][1]);
+                currentPoints.forEach(p => {
+                    ctx.lineTo(p[0], p[1]);
+                    ctx.fillRect(p[0]-4, p[1]-4, 8, 8);
+                });
+                ctx.stroke();
             }
         }
 
-        setInterval(fetchTelemetry, 1000);
-        fetchTelemetry();
+        function drawPoly(pts, fill, stroke, label) {
+            if (!pts || pts.length < 3) return;
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(pts[0][0], pts[0][1]);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Label
+            const cx = pts.reduce((sum, p) => sum + p[0], 0) / pts.length;
+            const cy = pts.reduce((sum, p) => sum + p[1], 0) / pts.length;
+            ctx.fillStyle = '#FFF';
+            ctx.font = 'bold 24px Inter, sans-serif';
+            ctx.fillText(label, cx - 20, cy);
+        }
+
+        function clearCurrentPoints() {
+            currentPoints = [];
+            drawCanvas();
+        }
+
+        function finishCurrentPolygon() {
+            if (currentPoints.length < 3) {
+                alert("Please click at least 3 points to form a polygon.");
+                return;
+            }
+            const type = document.getElementById('poly-type').value;
+            const id = document.getElementById('poly-id').value.trim() || `P_${Date.now().toString().slice(-4)}`;
+
+            if (type === 'slot') {
+                zonesData.parking_slots.push({ spot_id: id, name: `Bay ${id}`, polygon: [...currentPoints] });
+            } else {
+                const dwell = parseInt(document.getElementById('poly-dwell').value) || 60;
+                zonesData.restricted_zones.push({ zone_id: id, name: id, type: 'fire_lane', dwell_time_threshold_seconds: dwell, polygon: [...currentPoints] });
+            }
+
+            currentPoints = [];
+            document.getElementById('poly-id').value = '';
+            renderZonesList();
+            drawCanvas();
+        }
+
+        function renderZonesList() {
+            const list = document.getElementById('saved-zones-list');
+            let html = '';
+            (zonesData.parking_slots || []).forEach((s, idx) => {
+                html += `
+                    <div class="zone-card">
+                        <div>🟢 <b>${s.spot_id}</b> <span style="color:var(--text-muted);">(${s.polygon.length} pts)</span></div>
+                        <button class="btn btn-danger" style="padding: 2px 8px; font-size: 11px;" onclick="deleteZone('slot', ${idx})">Delete</button>
+                    </div>`;
+            });
+            (zonesData.restricted_zones || []).forEach((z, idx) => {
+                html += `
+                    <div class="zone-card">
+                        <div>🔴 <b>${z.zone_id}</b> <span style="color:var(--text-muted);">(Dwell: ${z.dwell_time_threshold_seconds}s)</span></div>
+                        <button class="btn btn-danger" style="padding: 2px 8px; font-size: 11px;" onclick="deleteZone('zone', ${idx})">Delete</button>
+                    </div>`;
+            });
+            list.innerHTML = html || '<div style="color:var(--text-muted);font-size:12px;">No zones defined</div>';
+        }
+
+        function deleteZone(type, idx) {
+            if (type === 'slot') zonesData.parking_slots.splice(idx, 1);
+            else zonesData.restricted_zones.splice(idx, 1);
+            renderZonesList();
+            drawCanvas();
+        }
+
+        async function saveZonesToServer() {
+            const res = await fetch('/api/zones', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(zonesData)
+            });
+            if (res.ok) showToast("Zones & slots saved & hot-reloaded in Edge Pipeline!");
+        }
+
+        // SETTINGS LOGIC
+        let fullConfig = {};
+        async function loadSettings() {
+            const res = await fetch('/api/config');
+            fullConfig = await res.json();
+            document.getElementById('cfg-device-id').value = fullConfig.system?.device_id || '';
+            document.getElementById('cfg-camera-id').value = fullConfig.system?.camera_id || '';
+            document.getElementById('cfg-conf-thresh').value = fullConfig.ai_pipeline?.confidence_threshold || 0.35;
+            document.getElementById('cfg-debounce').value = fullConfig.spatial_logic?.debounce_frames || 5;
+            document.getElementById('cfg-iou-thresh').value = fullConfig.spatial_logic?.occupancy_iou_threshold || 0.25;
+            document.getElementById('cfg-dwell-sec').value = fullConfig.spatial_logic?.dwell_time_threshold_seconds || 60;
+        }
+
+        async function saveSettings() {
+            fullConfig.system.device_id = document.getElementById('cfg-device-id').value;
+            fullConfig.system.camera_id = document.getElementById('cfg-camera-id').value;
+            fullConfig.ai_pipeline.confidence_threshold = parseFloat(document.getElementById('cfg-conf-thresh').value);
+            fullConfig.spatial_logic.debounce_frames = parseInt(document.getElementById('cfg-debounce').value);
+            fullConfig.spatial_logic.occupancy_iou_threshold = parseFloat(document.getElementById('cfg-iou-thresh').value);
+            fullConfig.spatial_logic.dwell_time_threshold_seconds = parseFloat(document.getElementById('cfg-dwell-sec').value);
+
+            const res = await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullConfig)
+            });
+            if (res.ok) showToast("Settings saved & hot-reloaded successfully!");
+        }
     </script>
 </body>
 </html>
